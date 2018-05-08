@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <style>
+      table, td, th {
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      table {
+        border-collapse: collapse;
+        width: 50%;
+      }
+      th, td {
+        padding: 10px;
+      }
+    </style>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src=https://unpkg.com/vue/dist/vue.js></script>
+
+  </head>
+  <body>
+    <div id="app">
+
+      <p>
+        Model: <input type="text" v-model="product.model"><br>
+        Color: <input type="text" v-model="product.color"><br>
+        {{ product }}<br>
+        <button type="button" @click="addProduct">Add Product</button>
+      </p>
+
+
+
+      <button type="button" @click="getProducts">Prodcts</button><br>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Model</th>
+            <th>Color</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="product in products">
+            <td>{{product.id}}</td>
+            <td>{{product.model}}</td>
+            <td>{{product.color}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <button type="button" @click="getColors">Colors</button><br>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Hex</th>
+            <th>Sample Color</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-if="colors.length > 0">
+            <tr v-for="color in colors">
+              <td>{{color.code}}</td>
+              <td>{{color.name}}</td>
+              <td>{{color.hex}}</td>
+              <td :style="{ 'background-color': color.hex }"></td>
+            </tr>
+          </template>
+
+        </tbody>
+      </table>
+
+    </div>
+  </body>
+</html>
+
+<script>new Vue({
+   el: '#app',
+   data:{
+   	products: [],
+    product: {
+      model: '',
+      color: ''
+    },
+    colors: []
+  },
+  methods: {
+    getProducts() {
+      var vm = this
+      axios.get('http://127.0.0.1:8000/warika/productsinformation')
+      .then(function (res) {
+        vm.products = res.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    addProduct() {
+      var vm = this
+      axios.post('http://127.0.0.1:8000/warika/productsinformation', {model: this.product})
+      .then(function (res) {
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    getColors() {
+      var vm = this
+      axios.get('http://127.0.0.1:8000/warika/products/colors')
+      .then(function (res) {
+        vm.colors = res.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+  }
+});
+</script>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Vuejs</title>
+    <script src=https://unpkg.com/vue/dist/vue.js></script>
+  </head>
+<body>
+
+
+  <div id="app">
+     Name: <input type="text" v-model="user.name"><br>
+     Age: <input type="text" v-model="user.age"><br>
+     <button type="button" @click="addUser">Submit</button>
+
+     <p v-for="user in users">
+       Name: {{ user.name }}<br>
+       Age: {{ user.age }}
+     </p>
+
+
+  </div>
+
+
+
+</body>
+</html>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>new Vue({
+   el: '#app',
+   data:{
+   	dogs: [
+      {name: 'Mommam', color: 'white', age: 8},
+      {name: 'OVT', color: 'brown', favs: ['ขนมปัง', 'หมูปิ้ง']},
+      {name: 'fay', color: 'pink'}
+    ],
+    lines: [],
+    users: [],
+    user: {
+      name: '',
+      age: null
+    }
+  },
+  methods: {
+    addUser() {
+      var vm = this
+      axios.post('https://waika-watcharapong24.firebaseio.com/users.json', this.user)
+      .then(function (res) {
+        console.log("success");
+        vm.readUser();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    readUser() {
+      var vm = this
+      axios.get('https://waika-watcharapong24.firebaseio.com/users.json')
+      .then(function (res) {
+        vm.users = res.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+  },
+  created() {
+    this.readUser();
+  }
+}); </script>
