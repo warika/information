@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div id="app">
+      <div class="container-fluid">
+        <div class="row justify-content-center mb-5 mt-5 d-print-none">
+          <div class="col-8">
+            <form>
+              <div class="form-group">
+                <label>เลือกรุ่นสินค้า</label>
+                <select v-model="selectedGroup" class="form-control">
+                  <option v-for="group in groups" :value="group">
+                    {{ group.model }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group" v-if="selectedGroup">
+                <label>เลือกสินค้า</label>
+                <select v-model="selectedProducts" multiple class="form-control">
+                  <option v-for="product in selectedGroup.products" :value="product">
+                    {{ product.model }}/{{ product.color }}/{{ product.size }}
+                  </option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" @click="addRow">เลือก</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="row justify-content-center d-none d-print-block mb-5">
+          <div class="col-12 text-center">
+            <h1>ใบเสนอราคา</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>(Pcs.)/Box</th>
+                  <th>Price/box (THB)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in rows">
+                  <td>
+                    {{ row.title }}<br>
+                    <ul>
+                      <li v-for="model in getUnique(row.products, 'model')">
+                        Model: {{model}}
+                        Color: {{ getColorFromModel(row.products, model) }} สี
+                        Length: {{ getSizeFromModel(row.products, model) }}
+                      </li>
+                    </ul>
+                  </td>
+
+                  <td>
+                    <br>
+                    <ul>
+                      <li v-for="model in getUnique(row.products, 'model')">
+                        {{ getPackFromModel(row.products, model) }}
+                      </li>
+                    </ul>
+                  </td>
+
+                  <td>
+                    <br>
+                    <ul>
+                      <li v-for="model in getUnique(row.products, 'model')">
+                        {{ getPriceFromModel(row.products, model) }}
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
+
+<script type="text/javascript">
+  var app = new Vue({
+    el: '#app',
+    data: {
+      groups: [
+        {
+          model: "buc",
+          title: "PVC Laminate Skirting Board",
+          products: [
+            {model: "BUC", color: "W101", size: "2.0 เมตร", pack: 10, price: 1350.00},
+            {model: "BUC", color: "C601", size: "2.0 เมตร", pack: 10, price: 1350.00}
+          ]
+        },
+        {
+          model: "jc",
+          title: "PVC groove",
+          products: [
+            {model: "JC10", color: "W101", size: "2.0 เมตร", pack: 100, price: 900.00},
+            {model: "JC15", color: "W101", size: "2.0 เมตร", pack: 100, price: 1360.00},
+            {model: "JC10", color: "W101", size: "2.5 เมตร", pack: 100, price: 900.00 },
+            {model: "JC15", color: "W101", size: "2.5 เมตร", pack: 100, price: 1360.00},
+            {model: "JC10", color: "C601", size: "2.0 เมตร", pack: 100, price: 900.00},
+            {model: "JC15", color: "C601", size: "2.0 เมตร", pack: 100, price: 1360.00},
+            {model: "JC10", color: "C601", size: "2.5 เมตร", pack: 100, price: 900.00},
+            {model: "JC15", color: "C601", size: "2.5 เมตร", pack: 100, price: 1360.00}
+          ]
+        }
+      ],
+      selectedGroup: null,
+      selectedProducts: [],
+      rows: []
+    },
+    computed: {
+
+    },
+    methods: {
+      addRow () {
+        this.rows.push({
+          model: this.selectedGroup.model,
+          title: this.selectedGroup.title,
+          products: this.selectedProducts
+        })
+      },
+      getUnique (products, column) {
+        let rows = _.uniqBy(products, column)
+        let res = rows.map(v => v[column])
+        return res
+      },
+      getColorFromModel (products, model) {
+        let rows = products.filter(v => v.model === model)
+        let uniqueColors = _.uniqBy(rows, 'color')
+        // return uniqueColors.map(v => v.color).join(',')
+        return uniqueColors.length
+      },
+      getSizeFromModel (products, model) {
+        let rows = products.filter(v => v.model === model)
+        let uniqueSizes = _.uniqBy(rows, 'size')
+        return uniqueSizes.map(v => v.size).join(',')
+      },
+      getPackFromModel (products, model) {
+        let product = products.find(v => v.model === model)
+        return product.pack
+      },
+      getPriceFromModel (products, model) {
+        let product = products.find(v => v.model === model)
+        return product.price
+      }
+    }
+  })
+</script>

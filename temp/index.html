@@ -9,40 +9,8 @@
   <body>
 
     <div id="app">
-      <p>
-        Global House CSV File: <input type="file" @change="onFileChange"/>
-      </p>
-      <p>
-        วันที่: <input type="date" v-model="selected_month"/>
-      </p>
-      <p>
-        <button type="button" @click="submit" v-if="fileInput && selected_month && !sent">ส่งข้อมูล {{ items.length }} รายการ</button>
-      </p>
-      <p v-if="message">
-        {{ message }}
-      </p>
-
-      <table border="1">
-        <tr>
-          <th>Month</th>
-          <th>Branch</th>
-          <th>Product Barcode</th>
-          <th>สต๊อก</th>
-          <th>ขาย</th>
-          <th>ยอดขายสุทธิ</th>
-        </tr>
-        <tr v-for="item in items">
-          <td>{{ item.data_date }}</td>
-          <td>{{ item.branch }}</td>
-          <td>{{ item.barcode }}</td>
-          <td>{{ item.stock }}</td>
-          <td>{{ item.sale }}</td>
-          <td>{{ item.sale_amount }}</td>
-        </tr>
-      </table>
-
+      {{test}}
     </div>
-
 
   </body>
 </html>
@@ -51,112 +19,13 @@
   var app = new Vue({
     el: '#app',
     data: {
-      fileInput: null,
-      selected_month: null,
-      sent: false,
-      message: null
+      test: 'sddsfs'
     },
     computed: {
-      csv_json() {
-        if(!this.fileInput) return
-        var arr = this.fileInput.split("\r\n");
-        return arr.map(v => {
-          return this.tranformText(v)
-        })
-      },
-      branchs() {
-        if(!this.csv_json) return
-        var str_branchs = this.csv_json.slice(2, 3)[0]
-        return str_branchs.split(',').filter(v => v !== '')
-      },
-      raw_items() {
-        if(!this.csv_json) return
-        var data = this.csv_json.slice(4)
-        data.pop()
-        data.pop()
-        var result = data.map(v => {
-          var preRes = v.split(',').filter((value, index) => {
-            let filterOut = [1,2,3,4,6]
-            if(filterOut.find(col => col == index)) return
-            return true
-          })
-          preRes.pop()
-          preRes.pop()
-          preRes.pop()
-          return preRes
-        })
-        // console.log(result);
-        return result
-      },
-      items() {
-        if(!this.raw_items || !this.branchs) return []
-        var arr = []
-        this.branchs.forEach((branch, index) => {
-          this.raw_items.forEach(data => {
-            let stock = data[(index * 3) +1]
-            let sale = data[(index * 3) +2]
-            let sale_amount = data[(index * 3) +3]
 
-            if(stock == '') stock = 0
-            if(sale == '') sale = 0
-            if(sale_amount == '') sale_amount = 0
-
-            var res = {
-              data_date: this.selected_month,
-              branch,
-              barcode: Number(data[0]),
-              stock,
-              sale,
-              sale_amount
-            }
-            arr.push(res)
-          })
-        })
-        return arr
-      }
-      items_mapped() {
-        return this.items.map(v => {
-          return {
-            
-          }
-        })
-      }
     },
     methods: {
-      onFileChange(e) {
-        var files = e.target.files;
-        if (!files.length)
-            return;
-        this.createInput(files[0]);
-      },
-      createInput(file) {
-        var reader = new FileReader();
-        var vm = this;
-        reader.onload = (e) => {
-          vm.fileInput = reader.result;
-        }
-        reader.readAsText(file);
-      },
-      tranformText(text) {
-        var str = text;
-        var regexp = /"(.*?)"/;
-        while (str.match(regexp)) {
-          var match_value = str.match(regexp).pop();
-          var new_value = match_value.split(',').join('');
-          str = str.replace(regexp, new_value);
-        }
-        return str;
-      },
-      submit() {
-        var url = 'sales.php'
-        this.sent = true
-        $.post(url,
-          {data: JSON.stringify(this.items)}
-        )
-        .then(res => {
-          this.message = res
-        })
-      }
+
     }
   })
 </script>
