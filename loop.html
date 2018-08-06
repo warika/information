@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter</title>
+    <script src=https://unpkg.com/vue/dist/vue.js></script>
+  </head>
+  <body>
+    <div id="app">
+      {{ map_results }}<br>
+      {{ loop }}<br>
+      {{ map_loop }}<br>
+      {{ test_filter }}<br>
+      {{ test_find}}<br>
+      {{ test_loopfind}}<br>
+      {{ test_everymethod}}<br>
+      {{  test_loopreduce}}
+    </div>
+  </body>
+</html>
+<script type="text/javascript">
+new Vue({
+  el: '#app',
+  data:{
+    animals: ['Ant', 'Bat', 'Cat', 'Dog'],
+    numbers:  [5,10,15,20,25,30,35,40],
+    members: [
+     {name: "Eve", age: 24},
+     {name: "Adam", age: 48},
+     {name: "Chris", age: 18},
+     {name: "Danny", age: 30}
+   ]
+  },
+  computed: {
+    map_results() {
+      var result = this.animals.map(v => {
+        return {name: v}
+      })
+      return result
+    },
+    loop() {
+      let result = []
+      for (let i = 0; i < this.numbers.length; i++) {
+        result.push(this.numbers[i]*2)
+      }
+      return result
+    },
+    map_loop(){
+      const result = this.numbers.map((number) => {
+        return number+2
+      })
+      console.log(result)
+      return result
+    },
+    test_filter(){
+      const result = this.numbers.filter((number) => {
+        return number > 25
+      })
+      return result
+    },
+    test_find(){
+      const result = this.members.find((member) => {
+        return member.age > 25
+      })
+      console.log(result)
+      return result
+    },
+    test_loopfind(){
+      let result
+        for ( let i = 0; i < this.members.length; i++) {
+        if (this.members[i].age > 25) {
+          result = this.members[i]
+        break
+        }
+      }
+      return result
+    },
+    test_everymethod(){
+      const everyResult = this.members.every((member) => {
+        return member.age > 25
+      })
+      console.log(everyResult)
+      const someResult = this.members.some((member) => {
+        return member.age > 25
+      })
+      console.log(someResult)
+      return { every: everyResult, some: someResult  }
+    },
+    test_loopreduce(){
+      let result = 0
+      for (let i = 0; i < this.numbers.length; i++) {
+        result += this.numbers[i]
+    }
+      return result
+        }
+
+  },
+  methods: {
+  },
+  created() {
+
+  }
+});
+</script>

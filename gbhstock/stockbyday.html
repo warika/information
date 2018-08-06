@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  </head>
+  <body>
+
+    <div id="app1">
+
+        <p>
+          <input type="file" id="file" ref="myFiles" class="custom-file-input"
+          @change="uploadFile">
+          <!-- <button type="button" @click="submitfile" v-if="files">ส่งข้อมูล></button> -->
+        </p>
+
+
+    เริ่มวันที่:<br>
+    <input type="date" name="" v-model="startdate" ><br><br>
+    ถึง :<br>
+    <input type="date" name="" v-model="enddate" ><br><br>
+    start : {{ startdate }} end : {{ enddate }}
+    <button type="button" @click="getStartdateenddate">ค้นหาวันที่</button>
+
+
+    <table border="1">
+      <tr>
+        <th>id</th>
+        <th>products_id</th>
+        <th>products_code</th>
+        <th>branches_id</th>
+        <th>branch</th>
+        <th>stockproduct</th>
+        <th>qty</th>
+        <th>date</th>
+
+      </tr>
+      <template v-if="rows.length > 0">
+        <tr v-for="row in rows">
+          <td>{{ row.id }}</td>
+          <td>{{ row.products_id }}</td>
+          <td>{{ row.products_code }}</td>
+          <td>{{ row.branches_id }}</td>
+          <td>{{ row.branch }}</td>
+          <td>{{ row.stockproduct }}</td>
+          <td>{{ row.qty }}</td>
+          <td>{{ row.date }}</td>
+        </tr>
+      </template>
+      <template v-else>
+        <tr>
+          <td colspan="2">ไม่พบข้อมูล</td>
+        </tr>
+      </template>
+    </table> <br>
+
+
+
+    </div>
+
+  </body>
+  </html>
+
+  <script type="text/javascript">
+  new Vue({
+  el: '#app1',
+  data: {
+    file: null,
+    startdate:'',
+    enddate:'',
+    rows: [],
+    item:[]
+        },
+  computed: {
+  },
+  methods: {
+    uploadFile() {
+      var files = this.$refs.myFiles.files
+      console.log(files[0]);
+      var formData = new FormData();
+      formData.append("file", files[0])
+      axios.post(`http://127.0.0.1:8000/warika/gbhstockbyday/uploadfile`, formData)
+        .then(function (res) {
+           console.log(res.data);
+         })
+        .catch(function (error) {
+          console.log(error);
+        })
+    },
+    getStartdateenddate() {
+      let vm = this
+      axios.get(`http://127.0.0.1:8000/warika/gbhstockbyday/findstartdateenddate/${this.startdate}/${this.enddate}`)
+      .then(function (res) {
+         console.log(res.data);
+         vm.rows = res.data
+       })
+      .catch(function (error) {
+        console.log("ไม่พบข้อมูล");
+      });
+    },
+  },
+  });
+</script>

@@ -1,0 +1,13 @@
+{
+  "User" : {
+    "User1" : "kaka",
+    "User2" : "kiki",
+    "User3" : "keke"
+  },
+  "User4" : {
+    "Name" : "koko",
+    "email" : "koko@hotmail.com",
+    "sex" : "male",
+    "tel" : "099999999"
+  }
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="" id="app">
+
+      <button type="button" name="button" @click="loadPdf">Open PDF</button>
+
+      <div class="container-fluid" ref="txt">
+
+        <div class="row justify-content-center">
+          <div class="col-10">
+            <h1 class="text-center">Hello</h1>
+          </div>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-8">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Model</th>
+                  <th>Color</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(product, index) in products">
+                  <td>{{ index }}</td>
+                  <td>{{ product.model }}</td>
+                  <td>{{ product.color }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </body>
+</html>
+
+<script>
+new Vue({
+  el:'#app',
+    data:{
+      products:[
+        {model:'a1', color:'red'},
+        {model:'a1dfgfdg', color:'red'},
+        {model:'a1', color:'red'},
+        {model:'a1dfgdf', color:'redfgfdgd'},
+        {model:'a1', color:'red'},
+        {model:'a1dfgfdg', color:'red'},
+        {model:'a1', color:'red'},
+        {model:'a1', color:'red'},
+      ]
+    },
+    methods: {
+      loadPdf() {
+        var d = new Date();
+        var year = d.getFullYear()
+        var doc = new jsPDF('p', 'pt', 'a4')
+        var vm = this
+        doc.fromHTML(vm.$refs.txt)
+        doc.save('a4_'+ year +'.pdf')
+      }
+    }
+})
+</script>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <title>TODO supply a title</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--
+    <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
+  <style media="screen">
+    #txt_color {
+      width: 200px;
+      height: 200px;
+      border: 1px solid yellow;
+    }
+
+    .red {
+      background-color: black;
+      color: red;
+    }
+
+    /* div{
+        width: 200px;
+        height: 200px;
+        background-color: yellow;
+      } */
+
+    .box {
+      background-color: black;
+      width: 500px;
+      height: 500px;
+      transition: width 2s;
+    }
+  </style>
+
+</head>
+
+<body>
+  <button onclick="changeColor('red')">Red</button>
+  <button onclick="changeColor('blue')">Blue</button>
+  <button onclick="changeColor('green')">Green</button>
+  <h1 id="txt_color">Gaga!</h1>
+  <div style="" ondblclick="change(this)">
+
+  </div>
+  <p class="red">sdfdsfds</p>
+  <h1 class="red">sdfdsf</h1>
+  <div onmouseover="changeStyle(this)" onmouseout="changeStyle2(this)" class="box">
+
+  </div>
+
+  Please input:<input type="text" onkeydown="changeStyle(this)" onkeydown="changeStyle2(this)">
+  <hr>
+  <p>please select</p>
+  <select id="demo" onchange="alert('change')">
+        <option value="bachelor">bachelor</option>
+        <option value="master">master</option>
+        <option value="doctor">doctor</option>
+    </select>
+  <button onclick="backTo()">back</button>
+  <button onclick="nextTo()">next</button><br>
+  <input type="button" value="input data" onclick="addData()" />
+  <input type="button" value="delete data" onclick="removeData()" />
+  <input type="button" value="sorting" onclick="sorting()" />
+  <p id="p1">show</p>
+
+</html>
+<script>
+  function changeColor(color) {
+    document.getElementById('txt_color').style.color = color
+  }
+
+  function change(obj) {
+    obj.style.backgroundColor = "green";
+  }
+
+  function selectAll() {
+    var txt = document.getElementById("txt1");
+    txt.select();
+    txt.style.color = "blue";
+    txt.style.backgroundColor = "yellow";
+  }
+
+  function changeStyle(obj) {
+    obj.style.background = 'red';
+    obj.style.width = '500px';
+  }
+
+  function changeStyle2(obj) {
+    obj.style.background = 'pink';
+    obj.style.width = '100px';
+  }
+
+  function testonFocus(obj) {
+    obj.style.green
+  }
+
+  function selectChange() {
+    var x = document.getElementById("myselect").value
+    document.getElementById("demo").innerHTML = x;
+  }
+
+  function nextTo() {
+    window.history.forward();
+  }
+
+  function backTo() {
+
+  }
+  var arr = new Array();
+
+  function addData() {
+    var name = prompt("insert:");
+    arr.push(Number(name));
+    showArray();
+  }
+
+  function removeData() {
+    var con = confirm(" d u w t d");
+    if (con) {
+      arr.pop();
+      showArray();
+    }
+  }
+
+  function showArray() {
+    // var txt="";
+    // for(var i=0;i<arr.length;i++){
+    // txt+="Array"+"["+i+"]="+arr[i]+"<br>";
+    // document.getElementById("p1").innerHTML=txt;
+    // }
+    var txt = "";
+    arr.forEach((v, i) => {
+      txt += `Array[${i}]= ${v}<br>`
+      document.getElementById("p1").innerHTML = txt;
+    })
+  }
+
+  function sorting() {
+    arr.sort((a, b) => {
+      return b - a
+    });
+    showArray();
+  }
+
+  // function summation() {
+  //   var sum=0;
+  //   var sco=prompt("insetnumber:");
+  //   sum = sum + parseInt(sco);
+  //   document.getElementById("demo").innerHTML = "result="+ sum;
+  // }
+</script>
+
+<!-- <script type="text/javascript"> -->
+<!-- // var app = new Vue({ -->
+<!-- //   el: '#app', -->
+<!-- //   data: {
+//     name: ''
+//   },
+//   created() {
+//     var name = prompt("please input your name:","default");
+//     if (name == "") {
+//       alert("please input ur name");
+//     } else {
+//       this.name = name;
+//     }
+//   }
+// })

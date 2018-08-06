@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title></title>
+  </head>
+  <body>
+    <div id="app">
+      <form>
+       <fieldset>
+        <legend>product:</legend>
+        ID: <input type="text" v-model="product.id"><br>
+        Name: <input type="text" v-model="product.name"><br>
+        Code: <input type="text" v-model="product.code"><br>
+        <button type="button" @click="addproduct">Add</button>
+        <button type="button" @click="editproduct">Edit</button>
+       </fieldset>
+     </form>{{ product }}
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>code</th>
+            <th>Del</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for = "product in products" @click="setproduct(product)">
+            <td>{{ product.id}}</td>
+            <td>{{ product.name}}</td>
+            <td>{{ product.code}}</td>
+            <td>
+              <button type="button" @click="deleteproduct(product.id)">Del</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+
+
+
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+var myView=new Vue({
+  el:"#app",
+  data:{
+    products: [],
+    product: {
+      id: 0,
+      name: '',
+      code: ''
+    }
+  },
+  methods: {
+    setproduct(product) {
+      this.product.id = product.id
+      this.product.name = product.name
+      this.product.code = product.code
+    },
+    getproducts() {
+      var vm = this
+      axios.get(`http://127.0.0.1:8000/products`)
+      .then(function (res) {
+        vm.products = res.data;
+      })
+      .catch(function (error) {
+        vm.products = []
+        console.log("ไม่พบข้อมูล");
+      });
+    },
+    addproduct() {
+      var vm = this
+      axios.post('http://127.0.0.1:8000/products', this.product)
+      .then(function (res) {
+        vm.getproducts()
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    deleteproduct(id) {
+      var vm = this
+      axios.delete(`http://127.0.0.1:8000/products/${id}`)
+      .then(function (res) {
+        vm.getproducts()
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    editproduct() {
+      var vm = this
+      axios.put(`http://127.0.0.1:8000/products/${this.product.id}`, this.product)
+      .then(function (res) {
+        vm.getproducts()
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+
+  },
+  created() {
+    this.getproducts()
+  }
+});
+</script>

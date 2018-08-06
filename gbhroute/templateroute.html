@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+      <div id="app1">
+        ต้นทาง: <input type="text" v-model="searchForEndpoint"><br>
+        <button type="button" @click="getEndpoint">ค้นหาปลายทาง</button>
+        <table border="1">
+          <tr>
+            <th>ปาลทาง</th>
+            <th>ภาค</th>
+          </tr>
+          <template v-if="endpoints.length > 0">
+            <tr v-for="endpoint in endpoints">
+              <td>{{ endpoint.endpoint }}</td>
+              <td>{{ endpoint.endsection }}</td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td colspan="2">ไม่พบข้อมูล</td>
+            </tr>
+          </template>
+        </table>
+
+        ปลายทาง: <input type="text" v-model="searchForStartpoint"><br>
+        <button type="button" @click="getStartpoint">ค้นหาต้นทาง</button>
+        <table border="1">
+          <tr>
+            <th>ต้นทาง</th>
+            <th>ภาค</th>
+          </tr>
+          <template v-if="startpoints.length > 0">
+            <tr v-for="startpoint in startpoints">
+              <td>{{ startpoint.startpoint }}</td>
+              <td>{{ startpoint.startsection }}</td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td colspan="2">ไม่พบข้อมูล</td>
+            </tr>
+          </template>
+        </table>
+
+    </div>
+  </body>
+  </html>
+  <script type="text/javascript">
+  new Vue({
+  el: '#app1',
+  data: {
+        searchForStartpoint: '',
+        searchForEndpoint: '',
+        startpoints: [],
+        endpoints:[]
+        },
+  computed: {
+  },
+  methods: {
+      getEndpoint() {
+        var vm = this
+        axios.get(`http://127.0.0.1:8000/warika/gbhtransferroute/Findendroutebystartpoint/${this.searchForEndpoint}`)
+        .then(function (res) {
+         vm.endpoints = res.data;
+       })
+        .catch(function (error) {
+        vm.endpoints = []
+        console.log("ไม่พบข้อมูล");
+      });
+    },
+      getStartpoint() {
+      var vm = this
+      axios.get (`http://127.0.0.1:8000/warika/gbhtransferroute/Findstartpointbyendpoint/${this.searchForStartpoint}`)
+        .then(function (res) {
+        vm.startpoints = res.data;
+      })
+      .catch(function (error) {
+        vm.startpoints = []
+        console.log("ไม่พบข้อมูล");
+      });
+    },
+  },
+  created() {
+
+  }
+});
+</script>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title></title>
+  </head>
+  <body>
+    <div id="app">
+      <form>
+       <fieldset>
+        <legend>Customer:</legend>
+        ID: <input type="text" v-model="customer.id"><br>
+        Name: <input type="text" v-model="customer.name"><br>
+        Code: <input type="text" v-model="customer.code"><br>
+        <button type="button" @click="addCustomer">Add</button>
+        <button type="button" @click="editCustomer">Edit</button>
+       </fieldset>
+     </form>{{ customer }}
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>code</th>
+            <th>Del</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for = "customer in customers" @click="setCustomer(customer)">
+            <td>{{ customer.id}}</td>
+            <td>{{ customer.name}}</td>
+            <td>{{ customer.code}}</td>
+            <td>
+              <button type="button" @click="deleteCustomer(customer.id)">Del</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+
+
+
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+var myView=new Vue({
+  el:"#app",
+  data:{
+    customers: [],
+    customer: {
+      id: 0,
+      name: '',
+      code: ''
+    }
+  },
+  methods: {
+    setCustomer(customer) {
+      this.customer.id = customer.id
+      this.customer.name = customer.name
+      this.customer.code = customer.code
+    },
+    getCustomers() {
+      var vm = this
+      axios.get(`http://127.0.0.1:8000/customers`)
+      .then(function (res) {
+        vm.customers = res.data;
+      })
+      .catch(function (error) {
+        vm.customers = []
+        console.log("ไม่พบข้อมูล");
+      });
+    },
+    addCustomer() {
+      var vm = this
+      axios.post('http://127.0.0.1:8000/customers', this.customer)
+      .then(function (res) {
+        vm.getCustomers()
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    deleteCustomer(id) {
+      var vm = this
+      axios.delete(`http://127.0.0.1:8000/customers/${id}`)
+      .then(function (res) {
+        vm.getCustomers()
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    editCustomer() {
+      var vm = this
+      axios.put(`http://127.0.0.1:8000/customers/${this.customer.id}`, this.customer)
+      .then(function (res) {
+        vm.getCustomers()
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+
+  },
+  created() {
+    this.getCustomers()
+  }
+});
+</script>

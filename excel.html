@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+
+      Excel File: <input type="file" @change="readFile"><br><br>
+
+      <button type="button" @click="addData" >ส่งข้อมูล</button>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>วันที่</th>
+            <th>รหัสสินค้า</th>
+            <th>สาขา</th>
+            <th>จำนวน</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in rows_filters">
+            <td>{{ row.date }}</td>
+            <td>{{ row.products_barcode }}</td>
+            <td>{{ row.branch }}</td>
+            <td>{{ row.qty }}</td>
+          </tr>
+        </tbody>
+      </table><br>{{ split_data }}<br>{{ join_data }}
+      <!-- {{ rows_filters }} -->
+
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+var myView=new Vue({
+  el:"#app",
+  data:{
+    rows:[],
+    headers:[],
+    test: '25/5/2561'
+  },
+  computed: {
+    rows_filters() {
+      return this.rows.map(v => {
+        var new_date = v['สต๊อกวันที่ '].split("/")
+        var stock_date = new_date[2] + '-' + new_date[1] + '-' + new_date[0]
+        return {
+          date : stock_date,
+          products_barcode: v.รหัสสินค้า,
+          branch: v.สาขา,
+          qty: v.จำนวน,
+        }
+      });
+    },
+    split_data() {
+      return this.test.split("/")
+    },
+    join_data() {
+      return `${this.split_data[2]}-${this.split_data[1]}-${this.split_data[0]}`
+      // return this.split_data[2] + '-' + this.split_data[1] + '-' + this.split_data[0]
+    }
+  },
+  methods:{
+    addData() {
+      var vm = this
+      axios.post('http://127.0.0.1:8000/excel/gldailystock', {data: this.rows_filters})
+      .then(function (res) {
+        console.log("สำเร็จ");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+
+
+    readFile(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length) return;
+
+      var reader = new FileReader();
+      var vm = this;
+      reader.onload = function(e) {
+        var results;
+        var data = e.target.result;
+        var fixedData = vm.fixdata(data);
+        var workbook=XLSX.read(btoa(fixedData), {type: 'base64'});
+        var firstSheetName = workbook.SheetNames[0]
+        worksheet = workbook.Sheets[firstSheetName];
+        vm.headers=vm.get_header_row(worksheet);
+        results=XLSX.utils.sheet_to_json(worksheet);
+        vm.rows=results;
+      };
+      reader.readAsArrayBuffer(files[0]);
+    },
+    get_header_row(sheet) {
+        var headers = [], range = XLSX.utils.decode_range(sheet['!ref']);
+        var C, R = range.s.r; /* start in the first row */
+        for(C = range.s.c; C <= range.e.c; ++C) { /* walk every column in the range */
+            var cell = sheet[XLSX.utils.encode_cell({c:C, r:R})] /* find the cell in the first row */
+            var hdr = "UNKNOWN " + C; // <-- replace with your desired default
+            if(cell && cell.t) hdr = XLSX.utils.format_cell(cell);
+            headers.push(hdr);
+        }
+        return headers;
+    },
+    fixdata(data) {
+    	var o = "", l = 0, w = 10240;
+    	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
+    	o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
+    	return o;
+    },
+    workbook_to_json(workbook) {
+    	var result = {};
+    	workbook.SheetNames.forEach(function(sheetName) {
+    		var roa = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+    		if(roa.length > 0){
+    			result[sheetName] = roa;
+    		}
+    	});
+    	return result;
+    }
+  }
+});
+</script>

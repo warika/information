@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter</title>
+    <script src=https://unpkg.com/vue/dist/vue.js></script>
+  </head>
+  <body>
+    <div id="app">
+      {{ maptest }}<br>
+      {{ loop }}<br>
+      {{ each }}<br>
+      {{ test }}<br>
+
+
+    </div>
+  </body>
+</html>
+<script type="text/javascript">
+new Vue({
+  el: '#app',
+  data:{
+    snacks:['gaga','cookie','cake','candy'],
+    numbers:  [5,10,15,20,25,30,35,40],
+    massege: 'Hello',
+
+  },
+  computed: {
+    maptest() {
+      var snack = this.snacks.map(v => {
+        return {name: v}
+      })
+      return snack
+    },
+    loop() {
+      var result = this.snacks
+      var i = 0; i < result.length; i++
+      return (result[i])
+    },
+    each(){
+      var snack = this.snacks
+      this.snacks.forEach((snack) => {
+      console.log(snack)
+     })
+      return (snack)
+    },
+    test() {
+      var say = this.massege
+      return (say)
+    },
+  
+
+
+
+  },
+  methods: {
+
+
+
+
+  },
+  created() {
+
+  }
+});
+</script>

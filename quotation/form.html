@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Form Quotation</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  </head>
+  <body>
+    <h1 class="text-center">Quotation</h1>
+    <div class="" id="app">
+      <form>
+        <fieldset>
+          <legend>Quotation</legend>
+          ID: <input type="text" v-model="quotation.id" readonly><br>
+          Code: <input type="text" v-model="quotation.code"><br>
+
+          Customer:
+            <select v-model="quotation.customers_id">
+            <option :value="null">โปรดเลือกลูกค้า</option>
+            <option v-for="customer in customers" :value="customer.id">
+              {{ customer.code }}: {{ customer.name }}</option>
+          </select><br>
+
+
+          <button type="button" @click="addQuotation">ADD</button>
+          <button type="button" @click="editQuotation">Edit</button>
+          <button type="button" @click="deleteQuotation">Delete</button>
+          <br>{{ quotation }}
+        </fieldset>
+      </form>
+      <hr>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <th>Code</th>
+          <th>Customer Name</th>
+          <th>Add Detail</th>
+        </tr>
+        <tr v-for = "quotation in quotations" @click="setQuotation(quotation)">
+          <td>{{ quotation.id }}</td>
+          <td>{{ quotation.date}}</td>
+          <td>{{ quotation.code }}</td>
+          <td>{{ quotation.customers_name}}</td>
+          <td><button type="button" @click="addProduct(product.id)">AddProduct</button></td>
+
+        </tr>
+      </table>
+      <hr>
+      <fieldset>
+        <legend>Quotation Details</legend>
+
+
+        ID: <input type="text" v-model="quotations_detail.id" readonly><br>
+        Product:
+        <select v-model="quotations_detail.products_id">
+          <option :value="null">โปรดเลือกสินค้า</option>
+          <option v-for="product in products" :value="product.id">
+            {{ product.code }}: {{ product.name }}</option>
+        </select><br>
+        Price: <b-form-input type="text" v-model.number="quotations_detail.price"></b-form-input><br>
+
+        <button type="button" @click="addQuotationDetail">ADD</button>
+        <button type="button" @click="editQuotationDetail">Edit</button>
+        <button type="button" @click="deleteQuotationDetail">Delete</button>
+        <br>{{ quotations_detail }}
+      </fieldset>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Quotation Code</th>
+          <th>Product</th>
+          <th>Price</th>
+        </tr>
+        <tr v-for = "quotations_detail in quotations_details" @click="setQuotationDetails(quotations_detail)">
+          <td>{{ quotations_detail.id }}</td>
+          <td>{{ quotations_detail.quotations_code}}</td>
+          <td>{{ quotations_detail.products_code}}</td>
+          <td>{{ quotations_detail.price }}</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
+<script>
+new Vue({
+  el:'#app',
+    data:{
+      quotation: {
+        id: 0,
+        code: '',
+        customers_id: null
+      },
+      customers: [],
+      products: [],
+      quotations:[],
+      quotations_details:[],
+      quotations_detail: {
+        id: 0,
+        quotations_id: 0,
+        products_id: null,
+        price: 0
+      },
+    },
+    methods: {
+
+
+      setQuotation(quotation) {
+        this.quotation.id = quotation.id
+        this.quotation.code = quotation.code
+        this.quotation.customers_id= quotation.customers_id
+        this.getQuotationsDetails(quotation.id)
+        this.quotations_detail.quotations_id = quotation.id
+      },
+      setQuotationDetails(quotations_detail) {
+        console.log(quotations_detail);
+        this.quotations_detail.id = quotations_detail.id
+        this.quotations_detail.quotations_id = quotations_detail.quotations_id
+        this.quotations_detail.products_id = quotations_detail.products_id
+        this.quotations_detail.price = quotations_detail.price
+
+      },
+
+      deleteQuotationDetail() {
+        var vm = this
+        axios.delete(`http://127.0.0.1:8000/quotationsdetails/${this.quotations_detail.id}`)
+        .then(function (res) {
+          vm.getQuotationsDetails(vm.quotation.id)
+          console.log("สำเร็จ");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+
+      editQuotationDetail() {
+        var vm = this
+        axios.put(`http://127.0.0.1:8000/quotationsdetails/${this.quotations_detail.id}`,this.quotations_detail)
+        .then(function (res) {
+          vm.getQuotationsDetails(vm.quotation.id)
+          console.log("สำเร็จ");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+
+      addQuotationDetail() {
+        var vm = this
+        axios.post('http://127.0.0.1:8000/quotationsdetails', this.quotations_detail)
+        .then(function (res) {
+          vm.getQuotationsDetails(vm.quotation.id)
+          console.log("สำเร็จ");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+
+      getProducts() {
+        var vm = this
+        axios.get(`http://127.0.0.1:8000/warika/inventories/dropdowns`)
+        .then(function (res) {
+          vm.products = res.data;
+        })
+        .catch(function (error) {
+          vm.products = []
+          console.log("ไม่พบข้อมูล");
+        });
+      },
+
+      deleteQuotation() {
+        var vm = this
+        axios.delete(`http://127.0.0.1:8000/quotations/${this.quotation.id}`)
+        .then(function (res) {
+          vm.getQuotation()
+          console.log("สำเร็จ");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+      editQuotation() {
+        var vm = this
+        axios.put(`http://127.0.0.1:8000/quotations/${this.quotation.id}`,this.quotation)
+        .then(function (res) {
+          vm.getQuotation()
+          console.log("สำเร็จ");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+
+      getCustomers() {
+        var vm = this
+        axios.get(`http://127.0.0.1:8000/customers`)
+        .then(function (res) {
+          vm.customers = res.data;
+        })
+        .catch(function (error) {
+          vm.customers = []
+          console.log("ไม่พบข้อมูล");
+        });
+      },
+
+      addQuotation() {
+        var vm = this
+        axios.post('http://127.0.0.1:8000/quotations', this.quotation)
+        .then(function (res) {
+          vm.getQuotation()
+          console.log("สำเร็จ");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+
+      getQuotation() {
+        var vm = this
+        axios.get(`http://127.0.0.1:8000/quotations`)
+        .then(function (res) {
+          vm.quotations = res.data;
+        })
+        .catch(function (error) {
+          vm.quotations = []
+          console.log("ไม่พบข้อมูล");
+        });
+      },
+
+      getQuotationsDetails(quotations_id) {
+        var vm = this
+        axios.get(`http://127.0.0.1:8000/quotationsdetails/quotations_id/${quotations_id}`)
+        .then(function (res) {
+          vm.quotations_details = res.data;
+        })
+        .catch(function (error) {
+          vm.quotations_details = []
+          console.log("ไม่พบข้อมูล");
+        });
+      },
+
+    },
+    created() {
+      this.getQuotation()
+      this.getCustomers()
+      this.getProducts()
+      // this.setQuotation()
+    }
+})
+</script>

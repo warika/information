@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+
+    <div id="app">
+      <p>
+        Global House CSV File: <input type="file" ref="myFiles"/>
+      </p>
+      <!-- <p>
+        วันที่: <input type="date" v-model="selected_month"/>
+      </p> -->
+      <p>
+        <button type="button" @click="submit" name="button">test</button>
+      </p>
+      <p v-if="message">
+        {{ message }}
+      </p>
+      <table border="1">
+        <tr>
+          <th>สต๊อกวันที่</th>
+          <th>รหัสสินค้า</th>
+          <th>ชื่อสินค้า</th>
+          <th>สาขา</th>
+          <th>ชื่อสาขา</th>
+          <th>จำนวน</th>
+          <th>หน่วยนับ</th>
+          <th>ราคาสุทธิ</th>
+        </tr>
+        <tr v-for="item in items">
+          <td>{{ item.stock_date }}</td>
+          <td>{{ item.barcode }}</td>
+          <td>{{ item.productname }}</td>
+          <td>{{ item.branch_code }}</td>
+          <td>{{ item.branch_name }}</td>
+          <td>{{ item.quantities }}</td>
+          <td>{{ item.unit }}</td>
+          <td>{{ item.netprice }}</td>
+        </tr>
+      </table>
+
+    </div>
+
+
+  </body>
+</html>
+
+<script type="text/javascript">
+  var app = new Vue({
+    el: '#app',
+    data: {
+      fileInput: null,
+      selected_month: null,
+      sent: false,
+      message: null
+    },
+    computed: {
+      // csv_json() {
+      //   if(!this.fileInput) return
+        // var arr = this.fileInput.split("\r\n");
+        // return arr.map(v => {
+        //   return this.tranformText(v)
+        // })
+      // },
+      // branchs() {
+      //   if(!this.csv_json) return
+      //   var str_branchs = this.csv_json.slice(2, 3)[0]
+      //   return str_branchs.split(',').filter(v => v !== '')
+      // },
+      // raw_items() {
+      //   if(!this.csv_json) return
+      //   var data = this.csv_json.slice(4)
+      //   data.pop()
+      //   data.pop()
+      //   var result = data.map(v => {
+      //     var preRes = v.split(',').filter((value, index) => {
+      //       let filterOut = [1,2,3,4,6]
+      //       if(filterOut.find(col => col == index)) return
+      //       return true
+      //     })
+      //     preRes.pop()
+      //     preRes.pop()
+      //     preRes.pop()
+      //     return preRes
+      //   })
+      //   // console.log(result);
+      //   return result
+      // },
+      items() {
+        if(!this.raw_items || !this.branchs) return []
+        var arr = []
+        this.branchs.forEach((branch, index) => {
+          this.raw_items.forEach(data => {
+            // let stock = data[(index * 3) +1]
+            // let sale = data[(index * 3) +2]
+            // let sale_amount = data[(index * 3) +3]
+            //
+            // if(stock == '') stock = 0
+            // if(sale == '') sale = 0
+            // if(sale_amount == '') sale_amount = 0
+
+            var res = {
+              stock_date,
+              barcode,
+              productname,
+              branch_code,
+              branch_name,
+              quantities,
+              unit,
+              netprice
+            }
+            arr.push(res)
+          })
+        })
+        return arr
+      }
+    },
+    methods: {
+      // onFileChange(e) {
+      //   var files = e.target.files || e.dataTransfer.files;
+      //   if (!files.length)
+      //       return;
+      //   // this.createInput(files[0]);
+      // },
+      // createInput(file) {
+      //   var reader = new FileReader();
+      //   var vm = this;
+      //   reader.onload = (e) => {
+      //     vm.fileInput = reader.result;
+      //   }
+      //   reader.readAsText(file);
+      // },
+      // tranformText(text) {
+      //   var str = text;
+      //   var regexp = /"(.*?)"/;
+      //   while (str.match(regexp)) {
+      //     var match_value = str.match(regexp).pop();
+      //     var new_value = match_value.split(',').join('');
+      //     str = str.replace(regexp, new_value);
+      //   }
+      //   return str;
+      // },
+      submit() {
+        var files = this.$refs.myFiles.files
+        console.log(files[0]);
+        var formData = new FormData();
+        formData.append("file", files[0])
+        axios.post(`http://127.0.0.1:8000/warika/gbhstockbyday/uploadfile`, formData)
+          .then(function (res) {
+             console.log(res.data);
+           })
+          .catch(function (error) {
+            console.log(error);
+          })
+      }
+    }
+  })
+</script>
