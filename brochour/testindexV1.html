@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div id="app">
+      Model: <input type="text" v-model="formData.model"><br>
+      Color: <input type="text" v-model="formData.color"><br>
+      Size:
+        <select v-model="formData.size">
+          <option v-for="size in sizes" :value="size.value">{{size.text}}</option>
+        </select><br>
+      <button type="button" @click="addProduct">Add</button>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Image</th>
+            <th>Description</th>
+            <th>Price/box (THB)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="data in uniqModel">
+            <td>
+              {{data.model}}
+            </td>
+
+            <td>
+              Image
+            </td>
+
+            <td>
+              Color: {{data.color.length}} สี <br>
+              Size:  {{data.size.length}} ขนาด Width(mm) x Height(mm) x Legth(m)<br>
+              <ul>
+                <li v-for="size in data.size">
+                  {{size}}
+                </li>
+              </ul>
+            </td>
+            <td>
+              Price:
+              <ul>
+                <br>
+                <li v-for="price in data.price">
+                  {{price}} Baht
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+var app = new Vue({
+  el: '#app',
+  data: {
+    products: [
+      {model: "JC10", color: "C601", size: "10W(mm.)x2L(M.)", pack: 100, price: 900.00},
+      {model: "JC10", color: "W101", size: "10W(mm.)x2.5L(M.)", pack: 100, price: 1350.00},
+      {model: "JC10", color: "BR901", size: "10W(mm.)x2L(M.)", pack: 100, price: 900.00 },
+      {model: "JC15", color: "W101", size: "15W(mm.)x2.5L(M.)", pack: 100, price: 1550.00},
+      {model: "JC15", color: "C601", size: "15W(mm.)x2L(M.)", pack: 120, price: 1000.00},
+      {model: "JC15", color: "BR901", size: "15W(mm.)x2L(M.)", pack: 100, price: 1000.00},
+      {model: "JC15", color: "G201", size: "15W(mm.)x2L(M.)", pack: 100, price: 1000.00},
+      {model: "JC20", color: "G201", size: "15W(mm.)x2L(M.)", pack: 100, price: 1000.00},
+      {model: "JC20", color: "G201", size: "15W(mm.)x2.5L(M.)", pack: 100, price: 1600.00}
+    ],
+    formData: {
+      model: '', color: '', size: '', pack: 0, price: 0
+    },
+    sizes: [
+      {text: '1.5 เมตร', value: '1.5 m'},
+      {text: '2.0 เมตร', value: '2.0 m'},
+      {text: '2.5 เมตร', value: '2.5 m'},
+      {text: '2.5 เมตร', value: '2.7 m'}
+    ],
+    rows: ''
+  },
+  computed: {
+    uniqModel () {
+      let models = this.myUnique(this.products, 'model')
+      let result = models.map(model => {
+        let uColors = this.getUnique(model, 'color')
+        let uSizes = this.getUnique(model, 'size')
+        let uPrices = this.getUnique(model, 'price')
+        return {
+          model: model,
+          color: uColors,
+          size: uSizes,
+          price: uPrices
+        }
+      })
+      return result
+    },
+    testfilter(){
+      let a =this.products.filter(rep => {
+        return rep.model == 'JC15'
+      })
+      return a
+    }
+  },
+  methods: {
+    getUnique (model, filter) {
+      let arr = this.products.filter(v => v.model == model)
+      return this.myUnique(arr, filter, '')
+    },
+    addProduct () {
+      let formData = Object.assign({}, this.formData)
+      this.products.push(formData)
+    },
+    myUnique (data, b) {
+      let arr = []
+      data.forEach(product => {
+        let found = arr.includes(product[b])
+        if (!found) {
+          arr.push(product[b])
+        }
+      })
+      return arr
+    }
+  }
+})
+</script>

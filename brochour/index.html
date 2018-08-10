@@ -56,18 +56,18 @@
                 <tr v-for="row in rows">
                   <td>
                     {{ row.title }}<br>
-                    <ul>
+                    <ul style="list-style-type:none">
                       <li v-for="model in getUnique(row.products, 'model')">
                         Model: {{model}}
                         Color: {{ getColorFromModel(row.products, model) }} สี
-                        Length: {{ getSizeFromModel(row.products, model) }}
+                        Size: {{ getSizeFromModel(row.products, model) }}
                       </li>
                     </ul>
                   </td>
 
                   <td>
                     <br>
-                    <ul>
+                    <ul style="list-style-type:none">
                       <li v-for="model in getUnique(row.products, 'model')">
                         {{ getPackFromModel(row.products, model) }}
                       </li>
@@ -76,7 +76,7 @@
 
                   <td>
                     <br>
-                    <ul>
+                    <ul style="list-style-type:none">
                       <li v-for="model in getUnique(row.products, 'model')">
                         {{ getPriceFromModel(row.products, model) }}
                       </li>
@@ -111,14 +111,12 @@
           model: "jc",
           title: "PVC groove",
           products: [
-            {model: "JC10", color: "W101", size: "2.0 เมตร", pack: 100, price: 900.00},
-            {model: "JC15", color: "W101", size: "2.0 เมตร", pack: 100, price: 1360.00},
-            {model: "JC10", color: "W101", size: "2.5 เมตร", pack: 100, price: 900.00 },
-            {model: "JC15", color: "W101", size: "2.5 เมตร", pack: 100, price: 1360.00},
-            {model: "JC10", color: "C601", size: "2.0 เมตร", pack: 100, price: 900.00},
-            {model: "JC15", color: "C601", size: "2.0 เมตร", pack: 100, price: 1360.00},
-            {model: "JC10", color: "C601", size: "2.5 เมตร", pack: 100, price: 900.00},
-            {model: "JC15", color: "C601", size: "2.5 เมตร", pack: 100, price: 1360.00}
+            {model: "JC10", color: "W101", size: "10W(mm.)x2.5L(M.)", pack: 100, price: 1350.00},
+            {model: "JC10", color: "C601", size: "10W(mm.)x2L(M.)", pack: 100, price: 900.00},
+            {model: "JC10", color: "BR901", size: "10W(mm.)x2L(M.)", pack: 100, price: 900.00 },
+            {model: "JC15", color: "W101", size: "15W(mm.)x2.5L(M.)", pack: 100, price: 1550.00},
+            {model: "JC15", color: "C601", size: "15W(mm.)x2L(M.)", pack: 100, price: 1000.00},
+            {model: "JC15", color: "BR901", size: "15W(mm.)x2L(M.)", pack: 100, price: 1000.00}
           ]
         }
       ],

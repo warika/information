@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div id="app">
+      <ul>
+        <li v-for="product in products">
+          {{ product.model }}
+        </li>
+      </ul>
+      {{ uniqProducts }}
+      {{ uniqGroups }}<br>
+      {{ uniqModel }}
+      {{ findmodel }}
+  </div>
+
+  </body>
+</html>
+
+<script type="text/javascript">
+var app = new Vue({
+  el: '#app',
+  data: {
+    products: [
+      {model: "JC10", color: "W101", size: "10W(mm.)x2.5L(M.)", pack: 100, price: 1350.00},
+      {model: "JC10", color: "C601", size: "10W(mm.)x2L(M.)", pack: 100, price: 900.00},
+      {model: "JC10", color: "BR901", size: "10W(mm.)x2L(M.)", pack: 100, price: 900.00 },
+      {model: "JC15", color: "W101", size: "15W(mm.)x2.5L(M.)", pack: 100, price: 1550.00},
+      {model: "JC15", color: "C601", size: "15W(mm.)x2L(M.)", pack: 120, price: 1000.00},
+      {model: "JC15", color: "BR901", size: "15W(mm.)x2L(M.)", pack: 100, price: 1000.00}
+    ]
+  },
+  computed: {
+    findmodel(){
+      let a =this.products.filter(b => {
+        // b = {model: "JC10", color: "W101", size: "10W(mm.)x2.5L(M.)", pack: 100, price: 1350.00}
+        console.log(b);
+        // let trueOrFalse = b.pack == 120
+        // console.log(trueOrFalse);
+        return b.color == 'C601'
+      })
+      return a
+    },
+    mapmap(){
+      let a =this.products.map(b => {
+        //{model: "JC10", color: "W101", size: "10W(mm.)x2.5L(M.)", pack: 100, price: 1350.00},
+        console.log(b);
+        if (b.size.search('2L') != -1){
+          b.size = '2.0 เมตร'
+        } else if (b.size.search('2.5L') != -1) {
+          b.size = '2.5 เมตร'
+        } else {
+          b.size = '-'
+        }
+        return b
+        // return 'รุ่น: ' + b.model + ' สี: ' + b.color + ' ขนาด:' + b.size
+      })
+      return a
+    },
+    reducereduce(){
+      let a = this.products
+        .filter(b => b.model == 'JC15')
+        .reduce((t, b) => {
+          console.log(t);
+          return t + b.price
+        }, 0)
+      return a
+    },
+    forEachData() {
+      this.products.forEach(b => {
+        console.log(b);
+      })
+      return 'haha'
+    },
+    uniqProducts () {
+      let models = _.uniqBy(this.products, 'model')
+      return models.map(v => {
+        return v.model
+      })
+    },
+    uniqModel () {
+      return this.myUnique(this.products, 'model', 'Model: ')
+    },
+    uniqGroups () {
+      return this.myUnique(this.products, 'color', 'Color: ')
+    }
+  },
+  methods: {
+
+    myUnique (data, column, rep) {
+      let arr = []
+      data.forEach(product => {
+        let found = arr.includes(product[column])
+        if (!found) {
+          arr.push(product[column])
+        }
+      })
+      return arr.map(v => rep + v)
+    }
+  }
+})
+</script>
