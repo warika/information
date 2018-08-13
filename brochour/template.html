@@ -10,6 +10,9 @@
   </head>
   <body>
       <div id="app1">
+        <input v-model.number="formData.price">
+        <button @click="changePrice">เพิ่มข้อมูล</button>
+        {{ formData }}
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -20,7 +23,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="data in productsMapped" >
+            <tr v-for="data in productsMapped"  >
               <td>
                 {{data.product.model}}: (W: {{data.product.w}} H: {{data.product.h}})
                 <ul>
@@ -35,16 +38,11 @@
               </td>
 
               <td>
-                pack
-                <ul>
-                  <li >
-
-                  </li>
-                </ul>
+                {{data.product.pack}}
               </td>
 
-              <td>
-                price
+              <td @click="hello(data)">
+                {{data.product.price}}
               </td>
 
           </tr>
@@ -71,15 +69,14 @@ new Vue({
       'CT10/W101/2.0'
     ],
     sizes:[
-      {model: "CT6", w:20, h:18},
-      {model: "CT10", w:20, h:21},
-      {model: "B20", w:20, h:21}
+      {model: "CT6", w:20, h:18, pack:150, price:0},
+      {model: "CT10", w:20, h:21, pack:100,  price:0},
+      {model: "B20", w:20, h:21, pack:20,  price:0}
     ],
+
     formData: {
-      product: '', pack: 0, price: 0
-    },
-    price: '',
-    pack: ''
+      model: '', w: 0, h: 0, price:0
+    }
    },
   computed: {
     productsData () {
@@ -173,8 +170,17 @@ new Vue({
     }
   },
   methods: {
-  },
-  created() {
-  },
+    hello(warika){
+      this.formData.price = warika.product.price
+      this.formData.model = warika.product.model
+      console.log(warika);
+    },
+    changePrice() {
+      let size = this.sizes.find( v => {
+        return v.model === this.formData.model
+      })
+      size.price = this.formData.price
+    }
+  }
 });
 </script>
