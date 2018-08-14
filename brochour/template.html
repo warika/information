@@ -6,13 +6,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   </head>
   <body>
       <div id="app1">
-        <input v-model.number="formData.price">
-        <button @click="changePrice">เพิ่มข้อมูล</button>
-        {{ formData }}
+        <input type="text" @keyup.enter="test">{{products}}
+        <button @click="formprice = !formprice, formremark = !formremark">EDIT</button>
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -25,16 +25,19 @@
           <tbody>
             <tr v-for="data in productsMapped"  >
               <td>
-                {{data.product.model}}: (W: {{data.product.w}} H: {{data.product.h}})
+                {{data.product.model}}: (W: {{data.product.w}}xH: {{data.product.h}})
+
                 <ul>
                   <li v-for="(value, key) in data.children">
                     L: {{key}} mm. Color: {{value}} สี
                   </li>
                 </ul>
+                <input type="text" v-model.number="data.product.remark" v-if="formremark">
+                {{data.product.remark}}
               </td>
 
               <td>
-                Image
+                <img v-bind:src="data.product.image" width="150" height="150">
               </td>
 
               <td>
@@ -42,7 +45,8 @@
               </td>
 
               <td @click="hello(data)">
-                {{data.product.price}}
+                <input type="text" v-model.number="data.product.price" v-if="formprice">
+                <span v-if="!formprice">{{data.product.price}}</span>
               </td>
 
           </tr>
@@ -55,58 +59,33 @@
 new Vue({
   el: '#app1',
   data: {
-    products: [
-      'CT6',
-      'CT10',
-      'B20'
-    ],
+    formremark: false,
+    formprice: false,
+    products: [],
     skus:[
-      'CT10/G202/2.7',
-      'CT10/W101/2.7',
-      'CT10/BL901/2.7',
-      'CT6/W101/2.7',
-      'B20/STWW/2.0',
-      'CT10/W101/2.0'
+      {name: 'CT10/G202/2.7'},
+      {name: 'CT10/W101/2.7'},
+      {name: 'CT10/BL901/2.7'},
+      {name: 'CT6/W101/2.7'},
+      {name: 'B20/STWW/2.0'},
+      {name: 'CT10/W101/2.0'}
     ],
     sizes:[
-      {model: "CT6", w:20, h:18, pack:150, price:0},
-      {model: "CT10", w:20, h:21, pack:100,  price:0},
-      {model: "B20", w:20, h:21, pack:20,  price:0}
-    ],
-
-    formData: {
-      model: '', w: 0, h: 0, price:0
-    }
+      {model: "CT6", w:20, h:18, pack:150, price:0, image:'photo/ct6.png' ,remark:''},
+      {model: "CT10", w:20, h:21, pack:100,  price:0, image:'photo/ct10.png', remark:''},
+      {model: "B20", w:20, h:21, pack:20,  price:0, image:'photo/b20.png' ,remark:''}
+    ]
    },
   computed: {
-    productsData () {
-      let arr = this.products.map(model => {
-        let m = this.skus.filter(sku =>{
-          return sku.includes(model)
-        })
-        let n = m.map(color =>{
-          return color.split('/')[1]
-        })
-        console.log(n);
-        return n.length
-     })
-     return arr
-    },
     productsMapped () {
       let arr = this.products.map(product => {
         let lengths = this.skus.filter(sku => {
-          return sku.includes(product)
+          return sku.name.includes(product)
         }).map(sku => {
-          let strL = sku.split('/')[2]
+          let strL = sku.name.split('/')[2]
           let length = Number(strL) * 1000
           return length
         })
-
-        // let uniqeLength = _.uniq(lengths)
-        // let totalLength = uniqeLength.map(v => {
-        //   let count = lengths.filter(length => length === v)
-        //   return {length: v, color: count.length}
-        // })
 
         let totalLength = _.countBy(lengths)
 
@@ -114,73 +93,32 @@ new Vue({
         return {product: model, children: totalLength}
       })
       return arr
-    },
-    filterSizeByModel() {
-      let a =this.sizes.filter(rep => {
-        return rep.model == 'CT10'
-      })
-      return a
-    },
-    filterColorByModel() {
-      var strings = this.skus;
-      const res = strings.filter(str => {
-        return str.includes("CT10");
-      })
-      return res.map(v => {
-        let arr = v.split('/')
-        return arr[1]
-      })
-    },
-    forEach() {
-        this.skus.forEach((sku) => {
-     console.log(sku)
-    })
-
-    },
-    filterModel() {
-     var strings = this.skus;
-     const res = strings.filter(str => {
-       return str.includes("CT10");
-     })
-     console.log(res);
-     return res
-    },
-    findName() {
-     var string = this.skus[0];
-     console.log(string);
-     var a = string.split('/');
-     return a
-    },
-    findProduct() {
-     var string = this.products[1];
-     console.log(string);
-     var a = string.split(' / ');
-     console.log(a);
-     return a[a.length - 1];
-    },
-    splitJoin(){
-      let res = this.products.map(v => {
-        console.log(v);
-        var a = v.split(' / ');
-        let result = a.join(' and ')
-        return result
-      })
-      return res
-        // return split[0];
     }
   },
   methods: {
-    hello(warika){
-      this.formData.price = warika.product.price
-      this.formData.model = warika.product.model
-      console.log(warika);
+    test(e) {
+      let value = e.target.value
+      this.products.push(value)
     },
-    changePrice() {
-      let size = this.sizes.find( v => {
-        return v.model === this.formData.model
+    getSkus() {
+      var vm = this
+      let p = this.products.map(v => {
+        return v.toLowerCase()
       })
-      size.price = this.formData.price
-    }
+      console.log(p);
+      axios.post(`http://127.0.0.1:8000/warika/quotations/products`, {
+        products: p
+      })
+      .then(function (res) {
+        console.log(res.data)
+      })
+      .catch(function (error) {
+        console.log("ไม่พบข้อมูล");
+      });
+    },
+  },
+  created () {
+    this.getSkus()
   }
 });
 </script>
