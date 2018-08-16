@@ -10,11 +10,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   </head>
   <body>
-      <div id="app1">
+    <div id="app1">
 
 
-
-        <input type="text" @keyup.enter="test">{{selected}}
+      <input type="text" @keyup.enter="test">{{selected}}
         <button @click="formprice = !formprice, formremark = !formremark">EDIT</button><br>
 
 
@@ -63,58 +62,8 @@
           </tbody>
         </table>
 
-        <!-- <ul>
-          <li v-for="data in testMap">
-            {{data.model}}<br>
-            {{data.color}}
-            <ul>
-              <li v-for="length in data.length">
-                {{length}}
-              </li>
-            </ul>
-          </li>
-        </ul> -->
 
-        <!-- <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>image</th>
-              <th>pack</th>
-              <th>price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="data in productsMapped"  >
-              <td>
-                {{data.product.model}}: (W: {{data.product.w}}xH: {{data.product.h}})
-
-                <ul>
-                  <li v-for="(value, key) in data.children">
-                    L: {{key}} mm. Color: {{value}} สี
-                  </li>
-                </ul>
-                <input type="text" v-model.number="data.product.remark" v-if="formremark">
-                {{data.product.remark}}
-              </td>
-
-              <td>
-                <img v-bind:src="data.product.image" width="150" height="150">
-              </td>
-
-              <td>
-                {{data.product.pack}}
-              </td>
-
-              <td @click="hello(data)">
-                <input type="text" v-model.number="data.product.price" v-if="formprice">
-                <span v-if="!formprice">{{data.product.price}}</span>
-              </td>
-
-          </tr>
-        </tbody> -->
-      <!-- </table> -->
-    </div>
+  </div>
   </body>
 </html>
 <script type="text/javascript">
@@ -123,8 +72,9 @@ new Vue({
   data: {
     formremark: false,
     formprice: false,
-    selected: ['CT10','CT6'],
-    selectedlength: ['2.0','2.5','2.7'],
+    selected: ['CT10'],
+    lengths: ['2.0','2.5','2.7'],
+    selectedLengths: ['2.0','2.5'],
     formData: {
       id: '', name: '', width: '', height: '', pack:0, price:0, colors_id: '', lengths_id:''
     },
@@ -137,6 +87,11 @@ new Vue({
     rows: []
    },
   computed: {
+    mapSelect(){
+      this.selected.forEach(b => {
+        console.log(b);
+      })
+    },
     testForeach() {
       this.products.forEach(b => {
         console.log(b);

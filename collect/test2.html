@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="app1">
+      {{mapLength}}
+
+  </div>
+  </body>
+</html>
+<script type="text/javascript">
+new Vue({
+  el: '#app1',
+  data: {
+    selected: ['CT10'],
+    lengths: ['2.0','2.5','2.7'],
+    selectedLengths: ['2.0','2.5']
+  },
+  computed:{
+    mapLength(){
+      let arr = this.selected.map(model => {
+        console.log(model);
+      let length = this.selectedLengths.forEach(l => {
+        console.log(l)
+        return l
+      })
+      return arr
+    })
+      // return arr
+    },
+  }
+});
+</script>

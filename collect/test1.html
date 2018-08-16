@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="app1">
+      <select v-model="selectedModel" @change="getLengths">
+        <option value="">โปรดเลือกสินค้า...</option>
+        <option v-for="model in models" :value="model">{{model}}</option>
+      </select>{{selectedModel}}
+
+      <select v-model="selectedLengths" multiple>
+        <option v-for="length in lengths" :value="length">{{length}}</option>
+      </select>{{selectedLengths}}
+
+      <button type="button" @click="getProducts">ค้นหา</button>
+      <button type="button" @click="deleteProducts">delete</button>
+      <button type="button" @click="products = []">Clear</button>
+
+      <pre>{{products}}</pre>
+      <!-- <p v-if="selectedOption">
+        You selected a {{ models[selectedDrink].label }} and specifically {{ selectedOption }}.
+      </p> -->
+
+  </div>
+  </body>
+</html>
+<script type="text/javascript">
+new Vue({
+  el: '#app1',
+  data: {
+    products:[],
+    models: ['CT10', 'CT6'],
+    lengths: [],
+    selectedModel: '',
+    selectedLengths: []
+  },
+  methods:{
+    getLengths () {
+      this.selectedLengths = []
+      if (this.selectedModel === '') {
+        this.lengths = []
+      } else if (this.selectedModel === 'CT10') {
+        this.lengths = ["2.0","2.5","2.7"]
+        this.selectedLengths = this.lengths
+      } else if (this.selectedModel === 'CT6') {
+        this.lengths = ["2.0"]
+      }
+    },
+    getProducts () {
+      if (!this.selectedModel) return
+      if (this.selectedLengths.length === 0) return
+      let lengths = this.selectedLengths.join(',')
+      let url = `http://127.0.0.1:8000/warika/quotations/products/${this.selectedModel}/${lengths}`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.products = vm.products.concat(res.data)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    deleteProducts () {
+      if (!this.selectedModel) return
+      if (this.selectedLengths.length === 0) return
+      let products = this.products.filter(v => {
+        let found = v.id === this.selectedModel && this.selectedLengths.includes(v.lengths_id)
+        return !found
+      })
+      this.products = products
+    }
+  }
+});
+</script>
