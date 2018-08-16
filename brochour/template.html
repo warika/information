@@ -11,9 +11,71 @@
   </head>
   <body>
       <div id="app1">
-        <input type="text" @keyup.enter="test">{{products}}
-        <button @click="formprice = !formprice, formremark = !formremark">EDIT</button>
+
+
+
+        <input type="text" @keyup.enter="test">{{selected}}
+        <button @click="formprice = !formprice, formremark = !formremark">EDIT</button><br>
+
+
         <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>image</th>
+              <th>pack</th>
+              <th>
+                price
+                <input type="text" v-model="formData.price">
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="data in rows">
+              <td>
+                {{data.model}}<br>
+                ขนาด:{{ data.width }}x{{ data.height }} (mm) สี:{{data.color}}<br>
+
+                <ul>
+                  <li v-for="length in data.lengths">
+                    ความยาว:{{ length*1000 }}
+                  </li>
+                </ul>
+                </select>
+              </td>
+              <td>
+                <img :src="'photo/' + data.image" alt="" width="150" height="150">
+                <img :src="'photo/' + data.drawing" alt="" width="150" height="50">
+              </td>
+              <td>
+                {{data.pack}}
+              </td>
+              <td >
+
+                <ul>
+                  <li v-for="price in data.prices" @click="formData = price">
+                     {{ price.lengths_id }}: {{ price.price }}
+                  </li>
+                </ul>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- <ul>
+          <li v-for="data in testMap">
+            {{data.model}}<br>
+            {{data.color}}
+            <ul>
+              <li v-for="length in data.length">
+                {{length}}
+              </li>
+            </ul>
+          </li>
+        </ul> -->
+
+        <!-- <table class="table table-bordered">
           <thead>
             <tr>
               <th>Product</th>
@@ -50,8 +112,8 @@
               </td>
 
           </tr>
-        </tbody>
-      </table>
+        </tbody> -->
+      <!-- </table> -->
     </div>
   </body>
 </html>
@@ -61,22 +123,25 @@ new Vue({
   data: {
     formremark: false,
     formprice: false,
-    products: [],
-    skus:[
-      {name: 'CT10/G202/2.7'},
-      {name: 'CT10/W101/2.7'},
-      {name: 'CT10/BL901/2.7'},
-      {name: 'CT6/W101/2.7'},
-      {name: 'B20/STWW/2.0'},
-      {name: 'CT10/W101/2.0'}
+    selected: ['CT10','CT6'],
+    selectedlength: ['2.0','2.5','2.7'],
+    formData: {
+      id: '', name: '', width: '', height: '', pack:0, price:0, colors_id: '', lengths_id:''
+    },
+    products: [
+      { id: "CT10", name: "CT10/G201/2.7", width: "21.00", height: "20.00", pack: 100, price: 50, colors_id: "G201", lengths_id: "2.7", image:'', drawing:'' },
+      { id: "CT10", name: "CT10/B300/2.7", width: "21.00", height: "20.00", pack: 100, price: 50, colors_id: "B300", lengths_id: "2.7", image:'', drawing:'' },
+      { id: "CT10", name: "CT10/B300/2.0", width: "21.00", height: "20.00", pack: 100, price: 20, colors_id: "B300", lengths_id: "2.0", image:'', drawing:'' },
+      { id: "CT6", name: "CT6/G201/2.7", width: "21.00", height: "20.00", pack: 100, price: 10, colors_id: "G201", lengths_id: "2.7", image:'', drawing:'' }
     ],
-    sizes:[
-      {model: "CT6", w:20, h:18, pack:150, price:0, image:'photo/ct6.png' ,remark:''},
-      {model: "CT10", w:20, h:21, pack:100,  price:0, image:'photo/ct10.png', remark:''},
-      {model: "B20", w:20, h:21, pack:20,  price:0, image:'photo/b20.png' ,remark:''}
-    ]
+    rows: []
    },
   computed: {
+    testForeach() {
+      this.products.forEach(b => {
+        console.log(b);
+      })
+    },
     productsMapped () {
       let arr = this.products.map(product => {
         let lengths = this.skus.filter(sku => {
@@ -96,29 +161,99 @@ new Vue({
     }
   },
   methods: {
+    testMap(){
+      if (this.products.length === 0) return []
+
+      let result = this.selected.map(model => {
+        let models = this.products.filter(v => v.id === model)
+
+        let colors = models.map(v => v.colors_id)
+        let uColors = _.uniq(colors)
+
+        let lengths = models.map(v => v.lengths_id)
+        let uLengths = _.uniq(lengths)
+
+        let uWidth = models[0].width
+        let uHeight = models[0].height
+        let uPack = models[0].pack
+        let uImage = models[0].image
+        let uDrawing = models[0].drawing
+
+        let uPrices = models.map(v => {
+          let res = models.find(x => x.lengths_id === v.lengths_id)
+          return {lengths_id: res.lengths_id, price: this.editPrice(res.price)}
+        }).sort((a, b) => a.lengths_id - b.lengths_id)
+
+        return{
+          model: model,
+          color: uColors.length,
+          width: uWidth,
+          height: uHeight,
+          pack :uPack,
+          prices: _.uniqBy(uPrices, 'lengths_id'),
+          lengths: uLengths.sort((a, b) => a - b),
+          image: uImage,
+          drawing: uDrawing
+
+        }
+      })
+
+      return result
+    },
+    editPrice(price) {
+      return Number(price)
+    },
+    setPrice (e) {
+      console.log(e.target);
+    },
+    getUnique (model, filter) {
+      let arr = this.products.filter(v => v.id == model)
+      return this.myUnique(arr, filter, '')
+    },
+    myUnique (data, b) {
+      let arr = []
+      data.forEach(product => {
+        let found = arr.includes(product[b])
+        if (!found) {
+          arr.push(product[b])
+        }
+      })
+      return arr
+    },
     test(e) {
       let value = e.target.value
-      this.products.push(value)
+      this.selected.push(value)
+      this.getSkus()
     },
     getSkus() {
       var vm = this
-      let p = this.products.map(v => {
-        return v.toLowerCase()
-      })
-      console.log(p);
       axios.post(`http://127.0.0.1:8000/warika/quotations/products`, {
-        products: p
+        products: vm.selected
       })
       .then(function (res) {
-        console.log(res.data)
+        vm.products = res.data
       })
       .catch(function (error) {
-        console.log("ไม่พบข้อมูล");
+        console.log(error);
       });
     },
+    hello(warika) {
+      this.formData.price = warika.formData.price
+      this.formData.model = warika.formData.model
+      console.log(warika);
+    }
+  },
+  watch: {
+    products(value) {
+      if (value.length === 0) return []
+      this.rows = this.testMap()
+    }
   },
   created () {
-    this.getSkus()
+    // this.getSkus()
+    this.selected = []
+    this.products = []
   }
 });
+
 </script>
