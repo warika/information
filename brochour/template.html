@@ -11,49 +11,73 @@
   </head>
   <body>
     <div id="app1">
+      <div class="d-print-none">
+        <select v-model="selectedLang">
+          <option value="th">Thai</option>
+          <option value="en">Eng</option>
+        </select>
 
+        <select v-model="selectedModel" @change="getLengths">
+          <option value="">โปรดเลือกสินค้า...</option>
+          <option v-for="model in models" :value="model.id">{{model.id}}</option>
+        </select>
 
-      <input type="text" @keyup.enter="test">{{selected}}
+        <select v-model="selectedLengths" multiple>
+          <option v-for="length in lengths" :value="length.id">{{length.id}}</option>
+        </select>
+
+        <button type="button" @click="getProducts">ค้นหา</button>
+        <button type="button" @click="deleteProducts">delete</button>
+        <button type="button" @click="products = []">Clear</button>
+
         <button @click="formprice = !formprice, formremark = !formremark">EDIT</button><br>
-
+      </div>
 
         <table class="table table-bordered">
-          <thead>
+          <thead class="text-center">
             <tr>
-              <th>Product</th>
-              <th>image</th>
-              <th>pack</th>
+              <th>{{findWord('product')}}</th>
+              <th> </th>
+              <th>{{findWord('pack')}}</th>
               <th>
-                price
-                <input type="text" v-model="formData.price">
+                {{findWord('price')}}
+                <input type="text" v-model="formData.price" @keyup.enter="changePrice" class="d-print-none">
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="data in rows">
+            <tr v-for="(data, index) in rows">
               <td>
-                {{data.model}}<br>
-                ขนาด:{{ data.width }}x{{ data.height }} (mm) สี:{{data.color}}<br>
+                {{findWord('model')}}:{{data.model}}<br>
+                {{findWord('size')}}:{{ data.width }}x{{ data.height }} (mm)
+                {{findWord('color')}}:{{data.color}}<br>
 
                 <ul>
                   <li v-for="length in data.lengths">
-                    ความยาว:{{ length*1000 }}
+                    {{findWord('length')}}:{{ length }} (mm)
                   </li>
                 </ul>
                 </select>
               </td>
               <td>
                 <img :src="'photo/' + data.image" alt="" width="150" height="150">
-                <img :src="'photo/' + data.drawing" alt="" width="150" height="50">
+                <img :src="'photo/' + data.drawing" alt="" width=auto height=auto>
               </td>
-              <td>
+              <td class="text-center">
+                <br>
+                <br>
                 {{data.pack}}
               </td>
               <td >
 
                 <ul>
-                  <li v-for="price in data.prices" @click="formData = price">
-                     {{ price.lengths_id }}: {{ price.price }}
+                  <br>
+                  <br>
+                  <li
+                    v-for="price in data.prices"
+                    @click="setFormData(price, index)"
+                    :class="{'text-danger': index === selectedRow}">
+                     {{findWord('length')}} {{ price.lengths_id }} (mm): {{ price.price }}
                   </li>
                 </ul>
               </td>
@@ -63,6 +87,7 @@
         </table>
 
 
+
   </div>
   </body>
 </html>
@@ -70,73 +95,108 @@
 new Vue({
   el: '#app1',
   data: {
+    selectedLang: 'th',
+    langs: [],
+    selectedRow: -1,
     formremark: false,
     formprice: false,
-    selected: ['CT10'],
-    lengths: ['2.0','2.5','2.7'],
-    selectedLengths: ['2.0','2.5'],
-    formData: {
-      id: '', name: '', width: '', height: '', pack:0, price:0, colors_id: '', lengths_id:''
-    },
-    products: [
-      { id: "CT10", name: "CT10/G201/2.7", width: "21.00", height: "20.00", pack: 100, price: 50, colors_id: "G201", lengths_id: "2.7", image:'', drawing:'' },
-      { id: "CT10", name: "CT10/B300/2.7", width: "21.00", height: "20.00", pack: 100, price: 50, colors_id: "B300", lengths_id: "2.7", image:'', drawing:'' },
-      { id: "CT10", name: "CT10/B300/2.0", width: "21.00", height: "20.00", pack: 100, price: 20, colors_id: "B300", lengths_id: "2.0", image:'', drawing:'' },
-      { id: "CT6", name: "CT6/G201/2.7", width: "21.00", height: "20.00", pack: 100, price: 10, colors_id: "G201", lengths_id: "2.7", image:'', drawing:'' }
-    ],
-    rows: []
+    formData: {},
+    rows: [],
+    products:[],
+    models: [],
+    lengths: [],
+    selectedModel: '',
+    selectedLengths: []
    },
   computed: {
-    mapSelect(){
-      this.selected.forEach(b => {
-        console.log(b);
-      })
-    },
-    testForeach() {
-      this.products.forEach(b => {
-        console.log(b);
-      })
-    },
-    productsMapped () {
-      let arr = this.products.map(product => {
-        let lengths = this.skus.filter(sku => {
-          return sku.name.includes(product)
-        }).map(sku => {
-          let strL = sku.name.split('/')[2]
-          let length = Number(strL) * 1000
-          return length
-        })
 
-        let totalLength = _.countBy(lengths)
-
-        let model = this.sizes.find(v => v.model === product)
-        return {product: model, children: totalLength}
-      })
-      return arr
-    }
   },
   methods: {
+    findWord (id) {
+      let result = this.langs.find(v => v.name === id)
+      if (!result) return '<<' + id + '>>'
+      return result[this.selectedLang]
+    },
+    changePrice () {
+
+    },
+    setFormData(data, index) {
+      this.formData = data
+      this.selectedRow = index
+    },
+    getLangs () {
+      let url = `http://127.0.0.1:8000/warika/quotations/langs`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.langs = res.data
+      })
+    },
+    getLengths () {
+      let url = `http://127.0.0.1:8000/warika/quotations/lengths/${this.selectedModel}`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.lengths = res.data
+      })
+    },
+    getModels () {
+      let url = `http://127.0.0.1:8000/warika/quotations/models`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.models = res.data
+      })
+    },
+    getProducts () {
+      if (!this.selectedModel) return
+      if (this.selectedLengths.length === 0) return
+      let lengths = this.selectedLengths.join(',')
+      let url = `http://127.0.0.1:8000/warika/quotations/products/${this.selectedModel}/${lengths}`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.products = vm.products.concat(res.data)
+        vm.rows = vm.testMap()
+      })
+    },
+    deleteProducts () {
+      if (!this.selectedModel) return
+      if (this.selectedLengths.length === 0) return
+      let products = this.products.filter(v => {
+        let found = v.id === this.selectedModel && this.selectedLengths.includes(v.lengths_id)
+        return !found
+      })
+      this.products = products
+      this.rows = this.testMap()
+    },
     testMap(){
       if (this.products.length === 0) return []
 
-      let result = this.selected.map(model => {
-        let models = this.products.filter(v => v.id === model)
+      let models = _.uniq(this.products.map(v => v.id))
 
-        let colors = models.map(v => v.colors_id)
+      let result = models.map(model => {
+        let products = this.products.filter(v => v.id === model)
+
+        let colors = products.map(v => v.colors_id)
         let uColors = _.uniq(colors)
 
-        let lengths = models.map(v => v.lengths_id)
+        let lengths = products.map(v => v.lengths_id)
         let uLengths = _.uniq(lengths)
 
-        let uWidth = models[0].width
-        let uHeight = models[0].height
-        let uPack = models[0].pack
-        let uImage = models[0].image
-        let uDrawing = models[0].drawing
+        let uWidth = products[0].width
+        let uHeight = products[0].height
+        let uPack = products[0].pack
+        let uImage = products[0].image
+        let uDrawing = products[0].drawing
 
-        let uPrices = models.map(v => {
-          let res = models.find(x => x.lengths_id === v.lengths_id)
-          return {lengths_id: res.lengths_id, price: this.editPrice(res.price)}
+        let uPrices = products.map(v => {
+          let res = products.find(x => x.lengths_id === v.lengths_id)
+          return {
+            models_id: model,
+            lengths_id: res.lengths_id,
+            price: this.editPrice(res.price)
+          }
         }).sort((a, b) => a.lengths_id - b.lengths_id)
 
         return{
@@ -158,56 +218,10 @@ new Vue({
     editPrice(price) {
       return Number(price)
     },
-    setPrice (e) {
-      console.log(e.target);
-    },
-    getUnique (model, filter) {
-      let arr = this.products.filter(v => v.id == model)
-      return this.myUnique(arr, filter, '')
-    },
-    myUnique (data, b) {
-      let arr = []
-      data.forEach(product => {
-        let found = arr.includes(product[b])
-        if (!found) {
-          arr.push(product[b])
-        }
-      })
-      return arr
-    },
-    test(e) {
-      let value = e.target.value
-      this.selected.push(value)
-      this.getSkus()
-    },
-    getSkus() {
-      var vm = this
-      axios.post(`http://127.0.0.1:8000/warika/quotations/products`, {
-        products: vm.selected
-      })
-      .then(function (res) {
-        vm.products = res.data
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    },
-    hello(warika) {
-      this.formData.price = warika.formData.price
-      this.formData.model = warika.formData.model
-      console.log(warika);
-    }
-  },
-  watch: {
-    products(value) {
-      if (value.length === 0) return []
-      this.rows = this.testMap()
-    }
   },
   created () {
-    // this.getSkus()
-    this.selected = []
-    this.products = []
+      this.getModels()
+      this.getLangs()
   }
 });
 

@@ -13,11 +13,11 @@
     <div id="app1">
       <select v-model="selectedModel" @change="getLengths">
         <option value="">โปรดเลือกสินค้า...</option>
-        <option v-for="model in models" :value="model">{{model}}</option>
+        <option v-for="model in models" :value="model.id">{{model.id}}</option>
       </select>{{selectedModel}}
 
       <select v-model="selectedLengths" multiple>
-        <option v-for="length in lengths" :value="length">{{length}}</option>
+        <option v-for="length in lengths" :value="length.id">{{length.id}}</option>
       </select>{{selectedLengths}}
 
       <button type="button" @click="getProducts">ค้นหา</button>
@@ -25,9 +25,6 @@
       <button type="button" @click="products = []">Clear</button>
 
       <pre>{{products}}</pre>
-      <!-- <p v-if="selectedOption">
-        You selected a {{ models[selectedDrink].label }} and specifically {{ selectedOption }}.
-      </p> -->
 
   </div>
   </body>
@@ -37,22 +34,33 @@ new Vue({
   el: '#app1',
   data: {
     products:[],
-    models: ['CT10', 'CT6'],
+    models: [],
     lengths: [],
     selectedModel: '',
     selectedLengths: []
   },
   methods:{
     getLengths () {
-      this.selectedLengths = []
-      if (this.selectedModel === '') {
-        this.lengths = []
-      } else if (this.selectedModel === 'CT10') {
-        this.lengths = ["2.0","2.5","2.7"]
-        this.selectedLengths = this.lengths
-      } else if (this.selectedModel === 'CT6') {
-        this.lengths = ["2.0"]
-      }
+      let url = `http://127.0.0.1:8000/warika/quotations/lengths/${this.selectedModel}`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.lengths = res.data
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    },
+    getModels () {
+      let url = `http://127.0.0.1:8000/warika/quotations/models`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.models = res.data
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     },
     getProducts () {
       if (!this.selectedModel) return
@@ -77,6 +85,9 @@ new Vue({
       })
       this.products = products
     }
+  },
+  created () {
+    this.getModels()
   }
 });
 </script>

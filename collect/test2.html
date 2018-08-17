@@ -11,7 +11,22 @@
   </head>
   <body>
     <div id="app1">
-      {{mapLength}}
+
+      <select v-model="selectedModel" @change="getLengths">
+        <option value="">โปรดเลือกสินค้า...</option>
+        <option v-for="type in types" :value="type">{{type}}</option>
+      </select>{{selectedModel}}
+
+      <!-- <select v-model="selectedLengths" multiple>
+        <option v-for="length in lengths" :value="length">{{length}}</option>
+      </select>{{selectedLengths}} -->
+
+      <button type="button" @click="getSkus">ค้นหา</button>
+      <!-- <button type="button" @click="deleteProducts">delete</button> -->
+      <button type="button" @click="products = []">Clear</button>
+
+      <pre>{{products}}</pre>
+
 
   </div>
   </body>
@@ -20,22 +35,63 @@
 new Vue({
   el: '#app1',
   data: {
-    selected: ['CT10'],
+    formremark: false,
+    formprice: false,
+    type: [],
     lengths: ['2.0','2.5','2.7'],
-    selectedLengths: ['2.0','2.5']
-  },
-  computed:{
-    mapLength(){
-      let arr = this.selected.map(model => {
-        console.log(model);
-      let length = this.selectedLengths.forEach(l => {
-        console.log(l)
-        return l
-      })
-      return arr
-    })
-      // return arr
+    selectedLengths: ['2.0','2.5'],
+    formData: {
+      id: '', name: '', width: '', height: '', pack:0, price:0, colors_id: '', lengths_id:''
     },
+    products: [],
+    rows: [],
+    selectedModel: '',
+    selectedLengths: []
+   },
+  computed: {
+  },
+
+  methods: {
+    getLengths () {
+      this.selectedLengths = []
+      if (this.selectedModel === '') {
+        this.lengths = []
+      } else if (this.selectedModel = this.type) {
+        this.lengths = ["2.0","2.5","2.7"]
+        this.selectedLengths = this.lengths
+      } else if (this.selectedModel = this.type) {
+        this.lengths = ["2.0"]
+      }
+    },
+    getSkus() {
+      if (!this.selectedModel) return
+      if (this.selectedLengths.length === 0) return
+      let lengths = this.selectedLengths.join(',')
+      let url = `http://127.0.0.1:8000/warika/quotations/products/${this.selectedModel}/${lengths}`
+      var vm = this
+      axios.get(url)
+      .then(function (res) {
+        vm.products = vm.products.concat(res.data)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+  },
+  deleteProducts () {
+    if (!this.selectedModel) return
+    if (this.selectedLengths.length === 0) return
+    let products = this.products.filter(v => {
+      let found = v.id === this.selectedModel && this.selectedLengths.includes(v.lengths_id)
+      return !found
+    })
+    this.products = products
+  },
+  created () {
+    // this.getSkus()
+    this.selected = []
+    this.products = []
   }
 });
+
 </script>
